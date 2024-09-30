@@ -1,0 +1,106 @@
+-- Create Database
+CREATE DATABASE PatientDB;
+GO
+
+USE PatientDB;
+GO
+
+-- Create Patients Table
+CREATE TABLE Patients (
+    PatientID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(100) NOT NULL,
+    LastName NVARCHAR(100) NOT NULL,
+    DateOfBirth DATE NOT NULL,
+    Email NVARCHAR(100) NOT NULL UNIQUE,
+    PhoneNumber NVARCHAR(20) NULL,
+    Address NVARCHAR(255) NULL,
+    MedicalHistory NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedAt DATETIME NULL
+);
+GO
+
+-- Create Stored Procedures
+
+CREATE PROCEDURE DeletePatient
+    @PatientID INT
+AS
+BEGIN
+    DELETE FROM Patients WHERE PatientID = @PatientID;
+END
+
+USE [PatientDB]
+GO
+
+
+/****** Object:  StoredProcedure [dbo].[CreatePatient]    Script Date: 30-09-2024 17:29:45 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[CreatePatient]
+    @PatientID  INT,
+    @FirstName NVARCHAR(100),
+    @LastName NVARCHAR(100),
+    @DateOfBirth DATE,
+    @Email NVARCHAR(100),
+    @PhoneNumber NVARCHAR(20) = NULL,
+    @Address NVARCHAR(255) = NULL,
+    @MedicalHistory NVARCHAR(MAX) = NULL
+AS
+BEGIN
+    -- Enable IDENTITY_INSERT for the Patients table
+    SET IDENTITY_INSERT Patients ON;
+
+    -- Insert the record, including the ID column
+    INSERT INTO Patients (PatientID,FirstName, LastName, DateOfBirth, Email, PhoneNumber, Address, MedicalHistory, CreatedAt)
+    VALUES (@PatientID,@FirstName, @LastName, @DateOfBirth, @Email, @PhoneNumber, @Address, @MedicalHistory, GETDATE());
+
+    -- Disable IDENTITY_INSERT for the Patients table
+    SET IDENTITY_INSERT Patients OFF;
+END;
+GO
+
+
+
+CREATE PROCEDURE UpdatePatient
+    @PatientID INT,
+    @FirstName NVARCHAR(100),
+    @LastName NVARCHAR(100),
+    @DateOfBirth DATE,
+    @Email NVARCHAR(100),
+    @PhoneNumber NVARCHAR(20) = NULL,
+    @Address NVARCHAR(255) = NULL,
+    @MedicalHistory NVARCHAR(MAX) = NULL
+AS
+BEGIN
+    UPDATE Patients
+    SET FirstName = @FirstName,
+        LastName = @LastName,
+        DateOfBirth = @DateOfBirth,
+        Email = @Email,
+        PhoneNumber = @PhoneNumber,
+        Address = @Address,
+        MedicalHistory = @MedicalHistory,
+        UpdatedAt = GETDATE()
+    WHERE PatientID = @PatientID;
+END
+
+
+
+CREATE PROCEDURE GetPatientById
+    @PatientID INT
+AS
+BEGIN
+    SELECT * FROM Patients WHERE PatientID = @PatientID;
+END
+
+
+
+CREATE PROCEDURE GetAllPatients
+AS
+BEGIN
+    SELECT * FROM Patients;
+END
